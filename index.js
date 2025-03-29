@@ -28,7 +28,7 @@ app.get("/", (req, res) => {
     status: "Server is running smoothly 🚀",
     uptime: process.uptime(),
     timestamp: new Date().toISOString(),
-    message: "Welcome to the DevProof API 🎉",
+    message: "Welcome to the AURA API 🎉",
   });
 });
 // PeerJS Server (for audio/video calls)
