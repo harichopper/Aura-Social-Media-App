@@ -23,6 +23,14 @@ app.use(cors({
 }));
 app.use(cookieParser());
 
+app.get("/", (req, res) => {
+  res.status(200).json({
+    status: "Server is running smoothly 🚀",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+    message: "Welcome to the DevProof API 🎉",
+  });
+});
 // PeerJS Server (for audio/video calls)
 const peerServer = ExpressPeerServer(http, { path: '/peerjs' });
 app.use('/peerjs', peerServer);
