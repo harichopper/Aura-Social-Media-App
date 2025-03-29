@@ -10,7 +10,7 @@ const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http, {
     cors: {
-        origin: [process.env.CLIENT_URL, "http://localhost:3000"],
+        origin: [process.env.CLIENT_URL, "http://localhost:3000","https://aura-social-media-app.vercel.app/"],
         methods: ["GET", "POST"],
         credentials: true
     }
@@ -18,7 +18,7 @@ const io = require('socket.io')(http, {
 // Middleware
 app.use(express.json());
 app.use(cors({
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:3000","https://aura-social-media-app.vercel.app/"],
     credentials: true
 }));
 app.use(cookieParser());
