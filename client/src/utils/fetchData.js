@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+const REACT_APP_BACKEND_URL="https://aura-social-media-app.vercel.app";
 /**
  * GET request
  * @param {string} url - API endpoint
