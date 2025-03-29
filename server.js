@@ -15,7 +15,14 @@ const io = require('socket.io')(http, {
         credentials: true
     }
 });
-
+app.get("/", (req, res) => {
+  res.status(200).json({
+    status: "Server is running smoothly 🚀",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+    message: "Welcome to the DevProof API 🎉",
+  });
+});
 // Middleware
 app.use(express.json());
 app.use(cors({
