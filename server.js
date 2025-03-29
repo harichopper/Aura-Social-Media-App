@@ -19,7 +19,7 @@ const io = require('socket.io')(http, {
 // Middleware
 app.use(express.json());
 app.use(cors({
-    origin: "http://localhost:3000",
+    origin: "http://localhost:3000","https://aura-social-media-app.onrender.com",
     credentials: true
 }));
 app.use(cookieParser());
