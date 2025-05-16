@@ -15,12 +15,10 @@ const allowedOrigins = [
   'https://aura-social-media-app.vercel.app'
 ];
 
-// Setup CORS middleware dynamically based on origin
+// CORS middleware
 app.use(cors({
   origin: function(origin, callback) {
-    // allow requests with no origin (like mobile apps, curl, Postman)
     if (!origin) return callback(null, true);
-
     if (allowedOrigins.indexOf(origin) === -1) {
       const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
       return callback(new Error(msg), false);
@@ -33,7 +31,7 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-// Setup socket.io with dynamic CORS
+// Socket.io setup
 const io = require('socket.io')(http, {
   cors: {
     origin: function(origin, callback) {
@@ -48,7 +46,7 @@ const io = require('socket.io')(http, {
   }
 });
 
-// Simple test route
+// Test route
 app.get('/', (req, res) => {
   res.status(200).json({
     status: "Server is running smoothly 🚀",
@@ -58,11 +56,11 @@ app.get('/', (req, res) => {
   });
 });
 
-// PeerJS Server for calls
+// PeerJS Server
 const peerServer = ExpressPeerServer(http, { path: '/peerjs' });
 app.use('/peerjs', peerServer);
 
-// Import your route files (adjust paths accordingly)
+// Routes
 app.use('/api', require('./routes/authRouter'));
 app.use('/api', require('./routes/userRouter'));
 app.use('/api', require('./routes/postRouter'));
@@ -80,13 +78,13 @@ mongoose.connect(URI, {
   console.log('✅ Connected to MongoDB');
 });
 
-// Socket.io connection handling
+// Socket.io connection
 const SocketServer = require('./socketServer');
 io.on('connection', socket => {
   SocketServer(socket, io);
 });
 
-// Serve React build for production
+// Serve React build
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static('client/build'));
   app.get('*', (req, res) => {
