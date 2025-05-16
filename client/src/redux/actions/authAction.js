@@ -35,32 +35,34 @@ export const login = (data) => async (dispatch) => {
 
 
 export const refreshToken = () => async (dispatch) => {
-    const firstLogin = localStorage.getItem("firstLogin")
-    if(firstLogin){
-        dispatch({ type: GLOBALTYPES.ALERT, payload: {loading: true} })
+  const firstLogin = localStorage.getItem("firstLogin");
+  if (firstLogin) {
+    dispatch({ type: GLOBALTYPES.ALERT, payload: { loading: true } });
 
-        try {
-            const res = await postDataAPI('refresh_token')
-            dispatch({ 
-                type: GLOBALTYPES.AUTH, 
-                payload: {
-                    token: res.data.access_token,
-                    user: res.data.user
-                } 
-            })
+    try {
+      // Important: send empty object {} as the second argument to postDataAPI
+      const res = await postDataAPI('refresh_token', {});  // <-- Add {}
 
-            dispatch({ type: GLOBALTYPES.ALERT, payload: {} })
+      dispatch({
+        type: GLOBALTYPES.AUTH,
+        payload: {
+          token: res.data.access_token,
+          user: res.data.user,
+        },
+      });
 
-        } catch (err) {
-            dispatch({ 
-                type: GLOBALTYPES.ALERT, 
-                payload: {
-                    error: err.response.data.msg
-                } 
-            })
-        }
+      dispatch({ type: GLOBALTYPES.ALERT, payload: {} });
+
+    } catch (err) {
+      dispatch({
+        type: GLOBALTYPES.ALERT,
+        payload: {
+          error: err.response?.data?.msg || err.message,
+        },
+      });
     }
-}
+  }
+};
 
 export const register = (data) => async (dispatch) => {
     const check = valid(data)
