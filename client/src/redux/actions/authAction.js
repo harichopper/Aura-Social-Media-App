@@ -35,39 +35,32 @@ export const login = (data) => async (dispatch) => {
 
 
 export const refreshToken = () => async (dispatch) => {
-  const firstLogin = localStorage.getItem("firstLogin");
-  if (firstLogin) {
-    dispatch({ type: GLOBALTYPES.ALERT, payload: { loading: true } });
+    const firstLogin = localStorage.getItem("firstLogin")
+    if(firstLogin){
+        dispatch({ type: GLOBALTYPES.ALERT, payload: {loading: true} })
 
-    try {
-      const res = await fetch('https://aura-social-media-app-1.onrender.com/api/refresh_token', {
-        method: 'POST',
-        credentials: 'include',
-      });
+        try {
+            const res = await postDataAPI('refresh_token')
+            dispatch({ 
+                type: GLOBALTYPES.AUTH, 
+                payload: {
+                    token: res.data.access_token,
+                    user: res.data.user
+                } 
+            })
 
-      const data = await res.json();
-      if (!res.ok) throw { response: { data } };
+            dispatch({ type: GLOBALTYPES.ALERT, payload: {} })
 
-      dispatch({
-        type: GLOBALTYPES.AUTH,
-        payload: {
-          token: data.access_token,
-          user: data.user,
-        },
-      });
-
-      dispatch({ type: GLOBALTYPES.ALERT, payload: {} });
-    } catch (err) {
-      dispatch({
-        type: GLOBALTYPES.ALERT,
-        payload: {
-          error: err.response?.data?.msg || "Refresh token failed",
-        },
-      });
+        } catch (err) {
+            dispatch({ 
+                type: GLOBALTYPES.ALERT, 
+                payload: {
+                    error: err.response.data.msg
+                } 
+            })
+        }
     }
-  }
-};
-
+}
 
 export const register = (data) => async (dispatch) => {
     const check = valid(data)
