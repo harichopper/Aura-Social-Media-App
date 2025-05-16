@@ -1,115 +1,130 @@
-import { GLOBALTYPES } from './globalTypes'
-import { postDataAPI } from '../../utils/fetchData'
-import valid from '../../utils/valid'
+const Users = require('../models/userModel')
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+
+const authCtrl = {
+    register: async (req, res) => {
+        try {
+            const { fullname, username, email, password, gender } = req.body
+            let newUserName = username.toLowerCase().replace(/ /g, '')
+
+            const user_name = await Users.findOne({username: newUserName})
+            if(user_name) return res.status(400).json({msg: "This user name already exists."})
+
+            const user_email = await Users.findOne({email})
+            if(user_email) return res.status(400).json({msg: "This email already exists."})
+
+            if(password.length < 6)
+            return res.status(400).json({msg: "Password must be at least 6 characters."})
+
+            const passwordHash = await bcrypt.hash(password, 12)
+
+            const newUser = new Users({
+                fullname, username: newUserName, email, password: passwordHash, gender
+            })
 
 
-export const login = (data) => async (dispatch) => {
-    try {
-        dispatch({ type: GLOBALTYPES.ALERT, payload: {loading: true} })
-        const res = await postDataAPI('login', data)
-        dispatch({ 
-            type: GLOBALTYPES.AUTH, 
-            payload: {
-                token: res.data.access_token,
-                user: res.data.user
-            } 
-        })
+            const access_token = createAccessToken({id: newUser._id})
+            const refresh_token = createRefreshToken({id: newUser._id})
 
-        localStorage.setItem("firstLogin", true)
-        dispatch({ 
-            type: GLOBALTYPES.ALERT, 
-            payload: {
-                success: res.data.msg
-            } 
-        })
-        
-    } catch (err) {
-        dispatch({ 
-            type: GLOBALTYPES.ALERT, 
-            payload: {
-                error: err.response.data.msg
-            } 
-        })
+           res.cookie('refreshtoken', refresh_token, {
+  httpOnly: true,
+  path: '/api/refresh_token',
+  maxAge: 30*24*60*60*1000,
+  secure: true,
+  sameSite: 'None'
+});
+
+
+            await newUser.save()
+
+            res.json({
+                msg: 'Register Success!',
+                access_token,
+                user: {
+                    ...newUser._doc,
+                    password: ''
+                }
+            })
+        } catch (err) {
+            return res.status(500).json({msg: err.message})
+        }
+    },
+    login: async (req, res) => {
+        try {
+            const { email, password } = req.body
+
+            const user = await Users.findOne({email})
+            .populate("followers following", "avatar username fullname followers following")
+
+            if(!user) return res.status(400).json({msg: "This email does not exist."})
+
+            const isMatch = await bcrypt.compare(password, user.password)
+            if(!isMatch) return res.status(400).json({msg: "Password is incorrect."})
+
+            const access_token = createAccessToken({id: user._id})
+            const refresh_token = createRefreshToken({id: user._id})
+
+            res.cookie('refreshtoken', refresh_token, {
+                httpOnly: true,
+                path: '/api/refresh_token',
+                maxAge: 30*24*60*60*1000 // 30days
+            })
+
+            res.json({
+                msg: 'Login Success!',
+                access_token,
+                user: {
+                    ...user._doc,
+                    password: ''
+                }
+            })
+        } catch (err) {
+            return res.status(500).json({msg: err.message})
+        }
+    },
+    logout: async (req, res) => {
+        try {
+            res.clearCookie('refreshtoken', {path: '/api/refresh_token'})
+            return res.json({msg: "Logged out!"})
+        } catch (err) {
+            return res.status(500).json({msg: err.message})
+        }
+    },
+    generateAccessToken: async (req, res) => {
+        try {
+            const rf_token = req.cookies.refreshtoken
+            if(!rf_token) return res.status(400).json({msg: "Please login now."})
+
+            jwt.verify(rf_token, process.env.REFRESH_TOKEN_SECRET, async(err, result) => {
+                if(err) return res.status(400).json({msg: "Please login now."})
+
+                const user = await Users.findById(result.id).select("-password")
+                .populate('followers following', 'avatar username fullname followers following')
+
+                if(!user) return res.status(400).json({msg: "This does not exist."})
+
+                const access_token = createAccessToken({id: result.id})
+
+                res.json({
+                    access_token,
+                    user
+                })
+            })
+            
+        } catch (err) {
+            return res.status(500).json({msg: err.message})
+        }
     }
 }
 
 
-export const refreshToken = () => async (dispatch) => {
-  const firstLogin = localStorage.getItem("firstLogin");
-  if (firstLogin) {
-    dispatch({ type: GLOBALTYPES.ALERT, payload: { loading: true } });
-
-    try {
-      // Important: send empty object {} as the second argument to postDataAPI
-      const res = await postDataAPI('refresh_token', {});  // <-- Add {}
-
-      dispatch({
-        type: GLOBALTYPES.AUTH,
-        payload: {
-          token: res.data.access_token,
-          user: res.data.user,
-        },
-      });
-
-      dispatch({ type: GLOBALTYPES.ALERT, payload: {} });
-
-    } catch (err) {
-      dispatch({
-        type: GLOBALTYPES.ALERT,
-        payload: {
-          error: err.response?.data?.msg || err.message,
-        },
-      });
-    }
-  }
-};
-
-export const register = (data) => async (dispatch) => {
-    const check = valid(data)
-    if(check.errLength > 0)
-    return dispatch({type: GLOBALTYPES.ALERT, payload: check.errMsg})
-
-    try {
-        dispatch({type: GLOBALTYPES.ALERT, payload: {loading: true}})
-
-        const res = await postDataAPI('register', data)
-        dispatch({ 
-            type: GLOBALTYPES.AUTH, 
-            payload: {
-                token: res.data.access_token,
-                user: res.data.user
-            } 
-        })
-
-        localStorage.setItem("firstLogin", true)
-        dispatch({ 
-            type: GLOBALTYPES.ALERT, 
-            payload: {
-                success: res.data.msg
-            } 
-        })
-    } catch (err) {
-        dispatch({ 
-            type: GLOBALTYPES.ALERT, 
-            payload: {
-                error: err.response.data.msg
-            } 
-        })
-    }
+const createAccessToken = (payload) => {
+    return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '1d'})
 }
 
-
-export const logout = () => async (dispatch) => {
-    try {
-        localStorage.removeItem('firstLogin')
-        await postDataAPI('logout')
-        window.location.href = "/"
-    } catch (err) {
-        dispatch({ 
-            type: GLOBALTYPES.ALERT, 
-            payload: {
-                error: err.response.data.msg
-            } 
-        })
-    }
+const createRefreshToken = (payload) => {
+    return jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {expiresIn: '30d'})
 }
+
+module.exports = authCtrl
