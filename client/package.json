@@ -1,6 +1,6 @@
 {
   "name": "client",
-  "proxy": "https://aura-social-media-app.onrender.com",
+  "proxy": "https://aura-social-media-app-1.onrender.com",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
