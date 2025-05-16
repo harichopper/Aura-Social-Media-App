@@ -27,12 +27,13 @@ export const getDataAPI = async (url, token) => {
  * @param {string} token - Authorization token
  * @returns {Promise} - Axios response promise
  */
-export const postDataAPI = async (url, post, token) => {
+export const postDataAPI = async (url, post = {}, token) => {
   const res = await API.post(`/api/${url}`, post, {
     headers: { Authorization: token }
   });
   return res;
 };
+
 
 /**
  * PUT request
