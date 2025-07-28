@@ -10,10 +10,10 @@ const app = express();
 const http = require('http').createServer(app);
 
 // Allowed origins for CORS
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://aura-social-media-app.vercel.app'
-];
+app.use(cors({
+  origin: ['https://aura-social-media-app-o3ob.vercel.app'], // ✅ FRONTEND URL
+  credentials: true, // ✅ important if you're using cookies (which you are)
+}));
 
 // CORS middleware
 app.use(cors({
