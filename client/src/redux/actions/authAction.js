@@ -2,102 +2,103 @@ import { GLOBALTYPES } from './globalTypes'
 import { postDataAPI } from '../../utils/fetchData'
 import valid from '../../utils/valid'
 
-
 export const login = (data) => async (dispatch) => {
     try {
-        dispatch({ type: GLOBALTYPES.ALERT, payload: {loading: true} })
+        dispatch({ type: GLOBALTYPES.ALERT, payload: { loading: true } })
+
         const res = await postDataAPI('login', data)
-        dispatch({ 
-            type: GLOBALTYPES.AUTH, 
+
+        dispatch({
+            type: GLOBALTYPES.AUTH,
             payload: {
                 token: res.data.access_token,
                 user: res.data.user
-            } 
+            }
         })
 
         localStorage.setItem("firstLogin", true)
-        dispatch({ 
-            type: GLOBALTYPES.ALERT, 
+
+        dispatch({
+            type: GLOBALTYPES.ALERT,
             payload: {
                 success: res.data.msg
-            } 
+            }
         })
-        
+
     } catch (err) {
-        dispatch({ 
-            type: GLOBALTYPES.ALERT, 
+        dispatch({
+            type: GLOBALTYPES.ALERT,
             payload: {
-                error: err.response.data.msg
-            } 
+                error: err?.response?.data?.msg || err.message
+            }
         })
     }
 }
 
-
 export const refreshToken = () => async (dispatch) => {
-  const firstLogin = localStorage.getItem("firstLogin");
-  if (firstLogin) {
-    dispatch({ type: GLOBALTYPES.ALERT, payload: { loading: true } });
+    const firstLogin = localStorage.getItem("firstLogin");
+    if (firstLogin) {
+        dispatch({ type: GLOBALTYPES.ALERT, payload: { loading: true } });
 
-    try {
-      // Important: send empty object {} as the second argument to postDataAPI
-      const res = await postDataAPI('refresh_token', {});  // <-- Add {}
+        try {
+            const res = await postDataAPI('refresh_token', {});  // send empty object!
 
-      dispatch({
-        type: GLOBALTYPES.AUTH,
-        payload: {
-          token: res.data.access_token,
-          user: res.data.user,
-        },
-      });
+            dispatch({
+                type: GLOBALTYPES.AUTH,
+                payload: {
+                    token: res.data.access_token,
+                    user: res.data.user,
+                },
+            });
 
-      dispatch({ type: GLOBALTYPES.ALERT, payload: {} });
+            dispatch({ type: GLOBALTYPES.ALERT, payload: {} });
 
-    } catch (err) {
-      dispatch({
-        type: GLOBALTYPES.ALERT,
-        payload: {
-          error: err.response?.data?.msg || err.message,
-        },
-      });
+        } catch (err) {
+            dispatch({
+                type: GLOBALTYPES.ALERT,
+                payload: {
+                    error: err?.response?.data?.msg || err.message,
+                },
+            });
+        }
     }
-  }
 };
 
 export const register = (data) => async (dispatch) => {
     const check = valid(data)
-    if(check.errLength > 0)
-    return dispatch({type: GLOBALTYPES.ALERT, payload: check.errMsg})
+    if (check.errLength > 0)
+        return dispatch({ type: GLOBALTYPES.ALERT, payload: check.errMsg })
 
     try {
-        dispatch({type: GLOBALTYPES.ALERT, payload: {loading: true}})
+        dispatch({ type: GLOBALTYPES.ALERT, payload: { loading: true } })
 
         const res = await postDataAPI('register', data)
-        dispatch({ 
-            type: GLOBALTYPES.AUTH, 
+
+        dispatch({
+            type: GLOBALTYPES.AUTH,
             payload: {
                 token: res.data.access_token,
                 user: res.data.user
-            } 
+            }
         })
 
         localStorage.setItem("firstLogin", true)
-        dispatch({ 
-            type: GLOBALTYPES.ALERT, 
+
+        dispatch({
+            type: GLOBALTYPES.ALERT,
             payload: {
                 success: res.data.msg
-            } 
+            }
         })
     } catch (err) {
-        dispatch({ 
-            type: GLOBALTYPES.ALERT, 
+        dispatch({
+            type: GLOBALTYPES.ALERT,
             payload: {
-                error: err.response.data.msg
-            } 
+                error: err?.response?.data?.msg || err.message
+            }
         })
     }
 }
-
 
 export const logout = () => async (dispatch) => {
     try {
@@ -105,11 +106,11 @@ export const logout = () => async (dispatch) => {
         await postDataAPI('logout')
         window.location.href = "/"
     } catch (err) {
-        dispatch({ 
-            type: GLOBALTYPES.ALERT, 
+        dispatch({
+            type: GLOBALTYPES.ALERT,
             payload: {
-                error: err.response.data.msg
-            } 
+                error: err?.response?.data?.msg || err.message
+            }
         })
     }
 }
