@@ -1,22 +1,16 @@
 import axios from 'axios';
 
-// 🌐 Axios instance with cross-origin cookie support
+// 🌐 Axios instance with CORS credentials (cookies)
 const API = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000',
-  withCredentials: true,
-});
-const API = axios.create({
-  baseURL: 'https://aura-social-media-app-3rat.vercel.app',
+  baseURL: process.env.REACT_APP_API_URL || 'https://aura-social-media-app-3rat.vercel.app',
   withCredentials: true,
 });
 
-// ✅ GET request (protected)
+// ✅ GET request (authenticated)
 export const getDataAPI = async (url, token) => {
   try {
     const res = await API.get(`/api/${url}`, {
-      headers: {
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
     return res.data;
   } catch (err) {
@@ -25,7 +19,7 @@ export const getDataAPI = async (url, token) => {
   }
 };
 
-// ✅ POST (public - e.g., register, login)
+// ✅ POST (public, e.g., login, register)
 export const postPublicDataAPI = async (url, data = {}) => {
   try {
     const res = await API.post(`/api/${url}`, data);
@@ -40,9 +34,7 @@ export const postPublicDataAPI = async (url, data = {}) => {
 export const postDataAPI = async (url, data = {}, token) => {
   try {
     const res = await API.post(`/api/${url}`, data, {
-      headers: {
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
     return res.data;
   } catch (err) {
@@ -55,9 +47,7 @@ export const postDataAPI = async (url, data = {}, token) => {
 export const putDataAPI = async (url, data = {}, token) => {
   try {
     const res = await API.put(`/api/${url}`, data, {
-      headers: {
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
     return res.data;
   } catch (err) {
@@ -70,9 +60,7 @@ export const putDataAPI = async (url, data = {}, token) => {
 export const patchDataAPI = async (url, data = {}, token) => {
   try {
     const res = await API.patch(`/api/${url}`, data, {
-      headers: {
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
     return res.data;
   } catch (err) {
@@ -85,9 +73,7 @@ export const patchDataAPI = async (url, data = {}, token) => {
 export const deleteDataAPI = async (url, token) => {
   try {
     const res = await API.delete(`/api/${url}`, {
-      headers: {
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
     return res.data;
   } catch (err) {
@@ -96,7 +82,7 @@ export const deleteDataAPI = async (url, token) => {
   }
 };
 
-// ✅ REFRESH TOKEN (uses cookie)
+// ✅ Refresh Access Token (uses cookie)
 export const getAccessToken = async () => {
   try {
     const res = await API.post('/api/refresh_token');
