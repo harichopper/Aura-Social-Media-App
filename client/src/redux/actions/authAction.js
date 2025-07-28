@@ -1,39 +1,43 @@
-import { GLOBALTYPES } from './globalTypes'
-import { postDataAPI } from '../../utils/fetchData'
-import valid from '../../utils/valid'
+import { GLOBALTYPES } from './globalTypes';
+import { postDataAPI } from '../../utils/fetchData';
+import valid from '../../utils/valid';
 
 export const login = (data) => async (dispatch) => {
-    try {
-        dispatch({ type: GLOBALTYPES.ALERT, payload: { loading: true } })
+  try {
+    dispatch({ type: GLOBALTYPES.ALERT, payload: { loading: true } });
 
-        const res = await postDataAPI('login', data)
+    const res = await postDataAPI('login', data);
+    console.log("🔐 Login Response:", res); // ✅ Debug: check the structure
 
-        dispatch({
-            type: GLOBALTYPES.AUTH,
-            payload: {
-                token: res.data.access_token,
-                user: res.data.user
-            }
-        })
+    dispatch({
+      type: GLOBALTYPES.AUTH,
+      payload: {
+        token: res.data.access_token, // or res.access_token depending on fetchData.js
+        user: res.data.user,
+      },
+    });
 
-        localStorage.setItem("firstLogin", true)
+    localStorage.setItem("firstLogin", true);
 
-        dispatch({
-            type: GLOBALTYPES.ALERT,
-            payload: {
-                success: res.data.msg
-            }
-        })
+    dispatch({
+      type: GLOBALTYPES.ALERT,
+      payload: {
+        success: res.data.msg,
+      },
+    });
 
-    } catch (err) {
-        dispatch({
-            type: GLOBALTYPES.ALERT,
-            payload: {
-                error: err?.response?.data?.msg || err.message
-            }
-        })
-    }
-}
+  } catch (err) {
+    console.error("❌ Login Error:", err.response?.data || err.message);
+
+    dispatch({
+      type: GLOBALTYPES.ALERT,
+      payload: {
+        error: err.response?.data?.msg || err.message,
+      },
+    });
+  }
+};
+
 
 export const refreshToken = () => async (dispatch) => {
     const firstLogin = localStorage.getItem("firstLogin");
