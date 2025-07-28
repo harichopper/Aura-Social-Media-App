@@ -1,9 +1,12 @@
 import axios from 'axios';
 
-// 🌐 Axios instance with CORS credentials (cookies)
+// 🌐 Axios instance with credentials (cookies) enabled
 const API = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'https://aura-social-media-app-3rat.vercel.app',
+  baseURL: import.meta.env.VITE_BACKEND_URL || 'https://aura-social-media-app-3rat.vercel.app',
   withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
 // ✅ GET request (authenticated)
@@ -14,7 +17,7 @@ export const getDataAPI = async (url, token) => {
     });
     return res.data;
   } catch (err) {
-    console.error(`❌ GET /api/${url} failed:`, err.response?.data || err.message);
+    console.error(`❌ GET /api/${url} failed:`, err.response?.data || err.message || err);
     throw err;
   }
 };
@@ -25,7 +28,7 @@ export const postPublicDataAPI = async (url, data = {}) => {
     const res = await API.post(`/api/${url}`, data);
     return res.data;
   } catch (err) {
-    console.error(`❌ POST /api/${url} failed:`, err.response?.data || err.message);
+    console.error(`❌ POST /api/${url} failed:`, err.response?.data || err.message || err);
     throw err;
   }
 };
@@ -34,11 +37,13 @@ export const postPublicDataAPI = async (url, data = {}) => {
 export const postDataAPI = async (url, data = {}, token) => {
   try {
     const res = await API.post(`/api/${url}`, data, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
     return res.data;
   } catch (err) {
-    console.error(`❌ POST /api/${url} failed:`, err.response?.data || err.message);
+    console.error(`❌ POST /api/${url} failed:`, err.response?.data || err.message || err);
     throw err;
   }
 };
@@ -47,11 +52,13 @@ export const postDataAPI = async (url, data = {}, token) => {
 export const putDataAPI = async (url, data = {}, token) => {
   try {
     const res = await API.put(`/api/${url}`, data, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
     return res.data;
   } catch (err) {
-    console.error(`❌ PUT /api/${url} failed:`, err.response?.data || err.message);
+    console.error(`❌ PUT /api/${url} failed:`, err.response?.data || err.message || err);
     throw err;
   }
 };
@@ -60,11 +67,13 @@ export const putDataAPI = async (url, data = {}, token) => {
 export const patchDataAPI = async (url, data = {}, token) => {
   try {
     const res = await API.patch(`/api/${url}`, data, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
     return res.data;
   } catch (err) {
-    console.error(`❌ PATCH /api/${url} failed:`, err.response?.data || err.message);
+    console.error(`❌ PATCH /api/${url} failed:`, err.response?.data || err.message || err);
     throw err;
   }
 };
@@ -73,11 +82,13 @@ export const patchDataAPI = async (url, data = {}, token) => {
 export const deleteDataAPI = async (url, token) => {
   try {
     const res = await API.delete(`/api/${url}`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
     return res.data;
   } catch (err) {
-    console.error(`❌ DELETE /api/${url} failed:`, err.response?.data || err.message);
+    console.error(`❌ DELETE /api/${url} failed:`, err.response?.data || err.message || err);
     throw err;
   }
 };
@@ -88,7 +99,7 @@ export const getAccessToken = async () => {
     const res = await API.post('/api/refresh_token');
     return res.data;
   } catch (err) {
-    console.error("🔐 Refresh token error:", err.response?.data || err.message);
+    console.error("🔐 Refresh token error:", err.response?.data || err.message || err);
     throw err;
   }
 };
