@@ -5,6 +5,10 @@ const API = axios.create({
   baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000',
   withCredentials: true,
 });
+const API = axios.create({
+  baseURL: 'https://aura-social-media-app-3rat.vercel.app',
+  withCredentials: true,
+});
 
 // ✅ GET request (protected)
 export const getDataAPI = async (url, token) => {
