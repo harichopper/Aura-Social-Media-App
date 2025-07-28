@@ -8,7 +8,7 @@ export const login = (data) => async (dispatch) => {
     dispatch({ type: GLOBALTYPES.ALERT, payload: { loading: true } });
 
     const res = await postDataAPI('login', data);
-    const { access_token, user, msg } = res || {};
+    const { access_token, user, msg } = res.data || {};
 
     if (!access_token || !user) {
       throw new Error("Login response malformed");
@@ -37,6 +37,7 @@ export const login = (data) => async (dispatch) => {
     });
   }
 };
+
 // 🔄 Refresh Token
 export const refreshToken = () => async (dispatch) => {
   const firstLogin = localStorage.getItem("firstLogin");
@@ -46,7 +47,7 @@ export const refreshToken = () => async (dispatch) => {
 
   try {
     const res = await postDataAPI('refresh_token', {});
-    const { access_token, user } = res?.data || {};
+    const { access_token, user } = res.data || {};
 
     if (!access_token || !user) {
       throw new Error("Refresh token response malformed");
@@ -78,7 +79,7 @@ export const register = (data) => async (dispatch) => {
     dispatch({ type: GLOBALTYPES.ALERT, payload: { loading: true } });
 
     const res = await postDataAPI('register', data);
-    const { access_token, user, msg } = res?.data || {};
+    const { access_token, user, msg } = res.data || {};
 
     if (!access_token || !user) {
       throw new Error("Register response malformed");
