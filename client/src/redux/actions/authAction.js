@@ -2,28 +2,28 @@ import { GLOBALTYPES } from './globalTypes';
 import { postDataAPI } from '../../utils/fetchData';
 import valid from '../../utils/valid';
 
+// 🔐 Login
 export const login = (data) => async (dispatch) => {
   try {
     dispatch({ type: GLOBALTYPES.ALERT, payload: { loading: true } });
 
     const res = await postDataAPI('login', data);
-    console.log("🔐 Login Response:", res); // ✅ Debug: check the structure
+    const { access_token, user, msg } = res?.data || {};
+
+    if (!access_token || !user) {
+      throw new Error("Login response malformed");
+    }
 
     dispatch({
       type: GLOBALTYPES.AUTH,
-      payload: {
-        token: res.data.access_token, // or res.access_token depending on fetchData.js
-        user: res.data.user,
-      },
+      payload: { token: access_token, user },
     });
 
     localStorage.setItem("firstLogin", true);
 
     dispatch({
       type: GLOBALTYPES.ALERT,
-      payload: {
-        success: res.data.msg,
-      },
+      payload: { success: msg || "Login successful" },
     });
 
   } catch (err) {
@@ -38,83 +38,86 @@ export const login = (data) => async (dispatch) => {
   }
 };
 
-
+// 🔄 Refresh Token
 export const refreshToken = () => async (dispatch) => {
-    const firstLogin = localStorage.getItem("firstLogin");
-    if (firstLogin) {
-        dispatch({ type: GLOBALTYPES.ALERT, payload: { loading: true } });
+  const firstLogin = localStorage.getItem("firstLogin");
+  if (!firstLogin) return;
 
-        try {
-            const res = await postDataAPI('refresh_token', {});  // send empty object!
+  dispatch({ type: GLOBALTYPES.ALERT, payload: { loading: true } });
 
-            dispatch({
-                type: GLOBALTYPES.AUTH,
-                payload: {
-                    token: res.data.access_token,
-                    user: res.data.user,
-                },
-            });
+  try {
+    const res = await postDataAPI('refresh_token', {});
+    const { access_token, user } = res?.data || {};
 
-            dispatch({ type: GLOBALTYPES.ALERT, payload: {} });
-
-        } catch (err) {
-            dispatch({
-                type: GLOBALTYPES.ALERT,
-                payload: {
-                    error: err?.response?.data?.msg || err.message,
-                },
-            });
-        }
+    if (!access_token || !user) {
+      throw new Error("Refresh token response malformed");
     }
+
+    dispatch({
+      type: GLOBALTYPES.AUTH,
+      payload: { token: access_token, user },
+    });
+
+    dispatch({ type: GLOBALTYPES.ALERT, payload: {} });
+  } catch (err) {
+    dispatch({
+      type: GLOBALTYPES.ALERT,
+      payload: {
+        error: err.response?.data?.msg || err.message,
+      },
+    });
+  }
 };
 
+// 📝 Register
 export const register = (data) => async (dispatch) => {
-    const check = valid(data)
-    if (check.errLength > 0)
-        return dispatch({ type: GLOBALTYPES.ALERT, payload: check.errMsg })
+  const check = valid(data);
+  if (check.errLength > 0)
+    return dispatch({ type: GLOBALTYPES.ALERT, payload: check.errMsg });
 
-    try {
-        dispatch({ type: GLOBALTYPES.ALERT, payload: { loading: true } })
+  try {
+    dispatch({ type: GLOBALTYPES.ALERT, payload: { loading: true } });
 
-        const res = await postDataAPI('register', data)
+    const res = await postDataAPI('register', data);
+    const { access_token, user, msg } = res?.data || {};
 
-        dispatch({
-            type: GLOBALTYPES.AUTH,
-            payload: {
-                token: res.data.access_token,
-                user: res.data.user
-            }
-        })
-
-        localStorage.setItem("firstLogin", true)
-
-        dispatch({
-            type: GLOBALTYPES.ALERT,
-            payload: {
-                success: res.data.msg
-            }
-        })
-    } catch (err) {
-        dispatch({
-            type: GLOBALTYPES.ALERT,
-            payload: {
-                error: err?.response?.data?.msg || err.message
-            }
-        })
+    if (!access_token || !user) {
+      throw new Error("Register response malformed");
     }
-}
 
+    dispatch({
+      type: GLOBALTYPES.AUTH,
+      payload: { token: access_token, user },
+    });
+
+    localStorage.setItem("firstLogin", true);
+
+    dispatch({
+      type: GLOBALTYPES.ALERT,
+      payload: { success: msg || "Registration successful" },
+    });
+  } catch (err) {
+    dispatch({
+      type: GLOBALTYPES.ALERT,
+      payload: {
+        error: err.response?.data?.msg || err.message,
+      },
+    });
+  }
+};
+
+// 🚪 Logout
 export const logout = () => async (dispatch) => {
-    try {
-        localStorage.removeItem('firstLogin')
-        await postDataAPI('logout')
-        window.location.href = "/"
-    } catch (err) {
-        dispatch({
-            type: GLOBALTYPES.ALERT,
-            payload: {
-                error: err?.response?.data?.msg || err.message
-            }
-        })
-    }
-}
+  try {
+    localStorage.removeItem("firstLogin");
+    await postDataAPI("logout");
+    window.location.href = "/";
+  } catch (err) {
+    dispatch({
+      type: GLOBALTYPES.ALERT,
+      payload: {
+        error: err.response?.data?.msg || err.message,
+      },
+    });
+  }
+};
