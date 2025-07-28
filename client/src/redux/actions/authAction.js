@@ -8,7 +8,7 @@ export const login = (data) => async (dispatch) => {
     dispatch({ type: GLOBALTYPES.ALERT, payload: { loading: true } });
 
     const res = await postDataAPI('login', data);
-    const { access_token, user, msg } = res?.data || {};
+    const { access_token, user, msg } = res || {};
 
     if (!access_token || !user) {
       throw new Error("Login response malformed");
@@ -37,7 +37,6 @@ export const login = (data) => async (dispatch) => {
     });
   }
 };
-
 // 🔄 Refresh Token
 export const refreshToken = () => async (dispatch) => {
   const firstLogin = localStorage.getItem("firstLogin");
