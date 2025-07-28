@@ -1,77 +1,104 @@
 import axios from 'axios';
 
-// Create a reusable Axios instance
+// 🌐 Axios instance with cross-origin cookie support
 const API = axios.create({
-  baseURL: process.env.REACT_APP_API_URL,
-  withCredentials: true
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000',
+  withCredentials: true,
 });
 
-
-/**
- * GET request
- * @param {string} url - API endpoint
- * @param {string} token - Authorization token
- * @returns {Promise} - Axios response promise
- */
+// ✅ GET request (protected)
 export const getDataAPI = async (url, token) => {
-  const res = await API.get(`/api/${url}`, {
-    headers: { Authorization: token }
-  });
-  return res;
+  try {
+    const res = await API.get(`/api/${url}`, {
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+    });
+    return res.data;
+  } catch (err) {
+    console.error(`❌ GET /api/${url} failed:`, err.response?.data || err.message);
+    throw err;
+  }
 };
 
-/**
- * POST request
- * @param {string} url - API endpoint
- * @param {object} post - Data to post
- * @param {string} token - Authorization token
- * @returns {Promise} - Axios response promise
- */
-export const postDataAPI = async (url, post = {}, token) => {
-  const res = await API.post(`/api/${url}`, post, {
-    headers: { Authorization: token }
-  });
-  return res;
+// ✅ POST (public - e.g., register, login)
+export const postPublicDataAPI = async (url, data = {}) => {
+  try {
+    const res = await API.post(`/api/${url}`, data);
+    return res.data;
+  } catch (err) {
+    console.error(`❌ POST /api/${url} failed:`, err.response?.data || err.message);
+    throw err;
+  }
 };
 
-
-/**
- * PUT request
- * @param {string} url - API endpoint
- * @param {object} post - Data to put (replace)
- * @param {string} token - Authorization token
- * @returns {Promise} - Axios response promise
- */
-export const putDataAPI = async (url, post, token) => {
-  const res = await API.put(`/api/${url}`, post, {
-    headers: { Authorization: token }
-  });
-  return res;
+// ✅ POST (authenticated)
+export const postDataAPI = async (url, data = {}, token) => {
+  try {
+    const res = await API.post(`/api/${url}`, data, {
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+    });
+    return res.data;
+  } catch (err) {
+    console.error(`❌ POST /api/${url} failed:`, err.response?.data || err.message);
+    throw err;
+  }
 };
 
-/**
- * PATCH request
- * @param {string} url - API endpoint
- * @param {object} post - Partial data to update
- * @param {string} token - Authorization token
- * @returns {Promise} - Axios response promise
- */
-export const patchDataAPI = async (url, post, token) => {
-  const res = await API.patch(`/api/${url}`, post, {
-    headers: { Authorization: token }
-  });
-  return res;
+// ✅ PUT (authenticated)
+export const putDataAPI = async (url, data = {}, token) => {
+  try {
+    const res = await API.put(`/api/${url}`, data, {
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+    });
+    return res.data;
+  } catch (err) {
+    console.error(`❌ PUT /api/${url} failed:`, err.response?.data || err.message);
+    throw err;
+  }
 };
 
-/**
- * DELETE request
- * @param {string} url - API endpoint
- * @param {string} token - Authorization token
- * @returns {Promise} - Axios response promise
- */
+// ✅ PATCH (authenticated)
+export const patchDataAPI = async (url, data = {}, token) => {
+  try {
+    const res = await API.patch(`/api/${url}`, data, {
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+    });
+    return res.data;
+  } catch (err) {
+    console.error(`❌ PATCH /api/${url} failed:`, err.response?.data || err.message);
+    throw err;
+  }
+};
+
+// ✅ DELETE (authenticated)
 export const deleteDataAPI = async (url, token) => {
-  const res = await API.delete(`/api/${url}`, {
-    headers: { Authorization: token }
-  });
-  return res;
+  try {
+    const res = await API.delete(`/api/${url}`, {
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+    });
+    return res.data;
+  } catch (err) {
+    console.error(`❌ DELETE /api/${url} failed:`, err.response?.data || err.message);
+    throw err;
+  }
+};
+
+// ✅ REFRESH TOKEN (uses cookie)
+export const getAccessToken = async () => {
+  try {
+    const res = await API.post('/api/refresh_token');
+    return res.data;
+  } catch (err) {
+    console.error("🔐 Refresh token error:", err.response?.data || err.message);
+    throw err;
+  }
 };
