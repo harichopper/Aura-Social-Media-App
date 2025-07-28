@@ -11,8 +11,8 @@ const http = require('http').createServer(app);
 
 // Allowed origins for CORS
 app.use(cors({
-  origin: ['https://aura-social-media-app-o3ob.vercel.app'], // ✅ FRONTEND URL
-  credentials: true, // ✅ important if you're using cookies (which you are)
+  origin: 'https://aura-social-media-app-o3ob.vercel.app',
+  credentials: true
 }));
 
 // CORS middleware
