@@ -8,12 +8,19 @@ const path = require('path');
 
 const app = express();
 const http = require('http').createServer(app);
+// ✅ Allowed origins for CORS
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://aura-social-media-app.vercel.app',
+  'https://aura-social-media-app-o3ob.vercel.app',
+  'https://aura-social-media-app-3rat.vercel.app'
+];
 
-// Allowed origins for CORS
-app.use(cors({
-  origin: 'https://aura-social-media-app-o3ob.vercel.app',
-  credentials: true
-}));
+// // Allowed origins for CORS
+// app.use(cors({
+//   origin: 'https://aura-social-media-app-o3ob.vercel.app',
+//   credentials: true
+// }));
 
 // CORS middleware
 app.use(cors({
