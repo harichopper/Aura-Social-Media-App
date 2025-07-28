@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // 🌐 Axios instance with credentials (cookies) enabled
 const API = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_URL || 'https://aura-social-media-app-3rat.vercel.app',
+  baseURL: import.meta.env.REACT_APP_API_URL || 'https://aura-social-media-app-3rat.vercel.app',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
