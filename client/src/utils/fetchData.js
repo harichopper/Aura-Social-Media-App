@@ -1,38 +1,46 @@
 import axios from 'axios'
 
-axios.defaults.withCredentials = true;
+// ✅ Backend URL
+const BASE_URL = "https://aura-social-media-app-6njw.vercel.app"
 
+axios.defaults.withCredentials = true; // send cookies
+
+// GET
 export const getDataAPI = async (url, token) => {
-    const res = await axios.get(`/api/${url}`, {
-        headers: { Authorization: token}
+    const res = await axios.get(`${BASE_URL}/api/${url}`, {
+        headers: { Authorization: token }
     })
-    return res;
+    return res
 }
 
+// POST
 export const postDataAPI = async (url, post, token) => {
-    const res = await axios.post(`/api/${url}`, post, {
-        headers: { Authorization: token}
+    const res = await axios.post(`${BASE_URL}/api/${url}`, post, {
+        headers: { Authorization: token }
     })
-    return res;
+    return res
 }
 
+// PUT
 export const putDataAPI = async (url, post, token) => {
-    const res = await axios.put(`/api/${url}`, post, {
-        headers: { Authorization: token}
+    const res = await axios.put(`${BASE_URL}/api/${url}`, post, {
+        headers: { Authorization: token }
     })
-    return res;
+    return res
 }
 
+// PATCH
 export const patchDataAPI = async (url, post, token) => {
-    const res = await axios.patch(`/api/${url}`, post, {
-        headers: { Authorization: token}
+    const res = await axios.patch(`${BASE_URL}/api/${url}`, post, {
+        headers: { Authorization: token }
     })
-    return res;
+    return res
 }
 
+// DELETE
 export const deleteDataAPI = async (url, token) => {
-    const res = await axios.delete(`/api/${url}`, {
-        headers: { Authorization: token}
+    const res = await axios.delete(`${BASE_URL}/api/${url}`, {
+        headers: { Authorization: token }
     })
-    return res;
+    return res
 }
