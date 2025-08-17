@@ -1,1 +1,1 @@
-export const BASE_URL = 'https://aura-social-media-app.vercel.app'
+export const BASE_URL = 'https://aura-social-media-app-6njw.vercel.app/'
