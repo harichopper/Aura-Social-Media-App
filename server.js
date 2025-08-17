@@ -5,26 +5,27 @@ const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const SocketServer = require('./socketServer')
 const { ExpressPeerServer } = require('peer')
-const path = require('path')
-
-
+const http = require('http')
 const app = express()
+
+// Middleware
 app.use(express.json())
-app.use(cors())
+app.use(cors({
+    origin: 'https://aura-social-media-app.vercel.app', // only allow frontend
+    credentials: true, // allow cookies
+}))
 app.use(cookieParser())
 
-
 // Socket
-const http = require('http').createServer(app)
-const io = require('socket.io')(http)
+const server = http.createServer(app)
+const io = require('socket.io')(server)
 
 io.on('connection', socket => {
     SocketServer(socket)
 })
 
-// Create peer server
-ExpressPeerServer(http, { path: '/' })
-
+// Peer server
+ExpressPeerServer(server, { path: '/' })
 
 // Routes
 app.use('/api', require('./routes/authRouter'))
@@ -34,32 +35,33 @@ app.use('/api', require('./routes/commentRouter'))
 app.use('/api', require('./routes/notifyRouter'))
 app.use('/api', require('./routes/messageRouter'))
 
-// ✅ Root route for Vercel
+// Root route redirect to frontend
 app.get('/', (req, res) => {
-  res.send("🚀 Aura Social Media App Backend is running!");
+    res.redirect('https://aura-social-media-app.vercel.app/')
 })
 
+// Catch-all route: redirect everything else (except /api) to frontend
+app.get('*', (req, res) => {
+    if (!req.path.startsWith('/api')) {
+        res.redirect('https://aura-social-media-app.vercel.app/')
+    } else {
+        res.status(404).json({ msg: 'API route not found' })
+    }
+})
 
-const URI = process.env.MONGODB_URL
-mongoose.connect(URI, {
+// MongoDB connection
+mongoose.connect(process.env.MONGODB_URL, {
     useCreateIndex: true,
     useFindAndModify: false,
     useNewUrlParser: true,
     useUnifiedTopology: true
 }, err => {
-    if(err) throw err;
-    console.log('✅ Connected to mongodb')
+    if (err) throw err
+    console.log('✅ Connected to MongoDB')
 })
 
-if(process.env.NODE_ENV === 'production'){
-    app.use(express.static('client/build'))
-    app.get('*', (req, res) => {
-        res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'))
-    })
-}
-
-
-const port = process.env.PORT || 5000
-http.listen(port, () => {
-    console.log('🚀 Server is running on port', port)
+// Start server
+const PORT = process.env.PORT || 5000
+server.listen(PORT, () => {
+    console.log('🚀 Server is running on port', PORT)
 })
