@@ -34,6 +34,11 @@ app.use('/api', require('./routes/commentRouter'))
 app.use('/api', require('./routes/notifyRouter'))
 app.use('/api', require('./routes/messageRouter'))
 
+// ✅ Root route for Vercel
+app.get('/', (req, res) => {
+  res.send("🚀 Aura Social Media App Backend is running!");
+})
+
 
 const URI = process.env.MONGODB_URL
 mongoose.connect(URI, {
@@ -43,7 +48,7 @@ mongoose.connect(URI, {
     useUnifiedTopology: true
 }, err => {
     if(err) throw err;
-    console.log('Connected to mongodb')
+    console.log('✅ Connected to mongodb')
 })
 
 if(process.env.NODE_ENV === 'production'){
@@ -56,5 +61,5 @@ if(process.env.NODE_ENV === 'production'){
 
 const port = process.env.PORT || 5000
 http.listen(port, () => {
-    console.log('Server is running on port', port)
+    console.log('🚀 Server is running on port', port)
 })
