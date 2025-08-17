@@ -14,25 +14,41 @@ export const checkImage = (file) => {
 
 export const imageUpload = async (images) => {
     let imgArr = [];
-    for(const item of images){
-        const formData = new FormData()
 
-        if(item.camera){
-            formData.append("file", item.camera)
-        }else{
-            formData.append("file", item)
+    for (const item of images) {
+        const formData = new FormData();
+
+        if (item.camera) {
+            formData.append("file", item.camera);
+        } else {
+            formData.append("file", item);
         }
-        
-        formData.append("upload_preset", "efxjficn")
-        formData.append("cloud_name", "devat-channel")
 
-        const res = await fetch("https://api.cloudinary.com/v1_1/devat-channel/upload", {
-            method: "POST",
-            body: formData
-        })
-        
-        const data = await res.json()
-        imgArr.push({public_id: data.public_id, url: data.secure_url})
+        formData.append("upload_preset", "haricdon");  // Make sure this is correct
+        formData.append("cloud_name", "dsalogt8w");   // Make sure this is correct
+
+        try {
+            const res = await fetch(`https://api.cloudinary.com/v1_1/dsalogt8w/image/upload`, {  // ✅ Corrected URL
+                method: "POST",
+                body: formData
+            });
+
+            if (!res.ok) {
+                throw new Error(`Cloudinary Upload Failed: ${res.status} ${res.statusText}`);
+            }
+
+            const data = await res.json();
+            if (!data.secure_url) {
+                throw new Error("No secure URL returned from Cloudinary");
+            }
+
+            imgArr.push({ public_id: data.public_id, url: data.secure_url });
+
+        } catch (error) {
+            console.error("Cloudinary Upload Error:", error);
+            return { error: "Failed to upload image. Please try again." };
+        }
     }
+
     return imgArr;
-}
+};
